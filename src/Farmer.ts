@@ -1,7 +1,9 @@
-import { 
+import {
+  PoolLoginLinkResponse,
+  PoolStateResponse,
   RewardTargetResponse,
   SignagePointResponse,
-  SignagePointsResponse
+  SignagePointsResponse,
 } from "./types/Farmer/RpcResponse";
 import { CertPath } from "./types/CertPath";
 import { getChiaConfig, getChiaFilePath } from "./ChiaNodeUtils";
@@ -54,7 +56,33 @@ class Farmer extends RpcClient {
   ): Promise<RpcResponse> {
     return this.request<RpcResponse>("set_reward_targets", {
       farmer_target: farmerTarget,
-      pool_target: poolTarget
+      pool_target: poolTarget,
+    });
+  }
+
+  public async getPoolState(): Promise<PoolStateResponse> {
+    return this.request<PoolStateResponse>("get_pool_state", {});
+  }
+
+  public async setPayoutInstructions(
+    launcherId: string,
+    payoutInstructions: string
+  ): Promise<RpcResponse> {
+    return this.request<RpcResponse>("set_payout_instructions", {
+      launcher_id: launcherId,
+      payout_instructions: payoutInstructions,
+    });
+  }
+
+  public async getHarvesters(): Promise<RpcResponse> {
+    return this.request<RpcResponse>("get_harvesters", {});
+  }
+
+  public async getPoolLoginLink(
+    launcherId: string
+  ): Promise<PoolLoginLinkResponse> {
+    return this.request<PoolLoginLinkResponse>("get_pool_login_link", {
+      launcher_id: launcherId,
     });
   }
 }

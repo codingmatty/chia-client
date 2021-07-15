@@ -33,7 +33,7 @@ describe("Farmer", () => {
     it("calls get_reward_targets", async () => {
       nock("https://localhost:8559")
         .defaultReplyHeaders({ "access-control-allow-origin": "*" })
-        .post("/get_reward_targets", { search_for_private_key: true})
+        .post("/get_reward_targets", { search_for_private_key: true })
         .reply(200, "success");
 
       expect(await farmer.getRewardTarget(true)).toEqual("success");
@@ -48,7 +48,57 @@ describe("Farmer", () => {
         })
         .reply(200, "success");
 
-      expect(await farmer.setRewardTarget("fakeFarmerTarget", "fakePoolTarget")).toEqual("success");
+      expect(
+        await farmer.setRewardTarget("fakeFarmerTarget", "fakePoolTarget")
+      ).toEqual("success");
+    });
+
+    it("calls get_pool_state", async () => {
+      nock("https://localhost:8559")
+        .defaultReplyHeaders({ "access-control-allow-origin": "*" })
+        .post("/get_pool_state")
+        .reply(200, "success");
+
+      expect(await farmer.getPoolState()).toEqual("success");
+    });
+
+    it("calls set_payout_instructions with launcher_id and payout_instructions", async () => {
+      nock("https://localhost:8559")
+        .defaultReplyHeaders({ "access-control-allow-origin": "*" })
+        .post("/set_payout_instructions", {
+          launcher_id: "fakeLauncherId",
+          payout_instructions: "fakePayoutInstructions",
+        })
+        .reply(200, "success");
+
+      expect(
+        await farmer.setPayoutInstructions(
+          "fakeLauncherId",
+          "fakePayoutInstructions"
+        )
+      ).toEqual("success");
+    });
+
+    it("calls get_harvesters", async () => {
+      nock("https://localhost:8559")
+        .defaultReplyHeaders({ "access-control-allow-origin": "*" })
+        .post("/get_harvesters")
+        .reply(200, "success");
+
+      expect(await farmer.getHarvesters()).toEqual("success");
+    });
+
+    it("calls get_pool_login_link", async () => {
+      nock("https://localhost:8559")
+        .defaultReplyHeaders({ "access-control-allow-origin": "*" })
+        .post("/get_pool_login_link", {
+          launcher_id: "fakeLauncherId",
+        })
+        .reply(200, "success");
+
+      expect(await farmer.getPoolLoginLink("fakeLauncherId")).toEqual(
+        "success"
+      );
     });
   });
 });
