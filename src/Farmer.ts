@@ -1,4 +1,5 @@
 import {
+  HarvestersResponse,
   PoolLoginLinkResponse,
   PoolStateResponse,
   RewardTargetResponse,
@@ -74,8 +75,8 @@ class Farmer extends RpcClient {
     });
   }
 
-  public async getHarvesters(): Promise<RpcResponse> {
-    return this.request<RpcResponse>("get_harvesters", {});
+  public async getHarvesters(): Promise<HarvestersResponse> {
+    return this.request<HarvestersResponse>("get_harvesters", {});
   }
 
   public async getPoolLoginLink(
