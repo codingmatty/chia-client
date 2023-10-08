@@ -7,7 +7,8 @@ jest.mock("yaml");
 describe("Full Node", () => {
   describe("RPC calls", () => {
     const fullNode = new FullNode({
-      caCertPath: "/dev/null/cert.crt",
+      hostname: "localhost",
+      port: 8555,
       certPath: "/dev/null/cert.crt",
       keyPath: "/dev/null/cert.key",
     });
@@ -93,6 +94,20 @@ describe("Full Node", () => {
         .reply(200, "success");
 
       expect(await fullNode.getAdditionsAndRemovals("fakeHeaderHash")).toEqual(
+        "success"
+      );
+    });
+
+    it("calls get_puzzle_and_solution", async () => {
+      nock("https://localhost:8555")
+        .defaultReplyHeaders({ "access-control-allow-origin": "*" })
+        .post("/get_puzzle_and_solution", {
+          coin_id: "fakeCoinId",
+          height: 1000000
+        })
+        .reply(200, "success");
+
+      expect(await fullNode.getPuzzleAndSolution("fakeCoinId", 1000000)).toEqual(
         "success"
       );
     });

@@ -2,32 +2,27 @@ import { readFileSync } from "fs";
 import { Agent } from "https";
 import axios from "axios";
 
-type Protocol = "https" | "http";
-
 interface ChiaOptions {
-  protocol: Protocol;
   hostname: string;
   port: number;
-  caCertPath: string | boolean;
+  caCertPath?: string;
   certPath: string;
   keyPath: string;
 }
 
 class RpcClient {
-  private readonly protocol: Protocol;
+  private readonly protocol = 'https';
   private readonly hostname: string;
   private readonly port: number;
   private readonly agent: Agent;
 
   public constructor(options: ChiaOptions) {
-    this.protocol = options.protocol;
     this.hostname = options.hostname;
-    this.port = options.port;
+    this.port =  options.port,
     this.agent = new Agent({
-      ...(typeof options.caCertPath !== 'boolean' ? { ca: readFileSync(options.caCertPath) } : {}),
       cert: readFileSync(options.certPath),
       key: readFileSync(options.keyPath),
-      rejectUnauthorized: options.hostname !== "localhost",
+      rejectUnauthorized: false,
     });
   }
 

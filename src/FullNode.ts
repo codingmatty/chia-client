@@ -6,34 +6,16 @@ import {
   NetspaceResponse,
   BlockResponse,
   BlockRecordResponse,
+  PuzzleAndSolutionResponse,
   UnfinishedBlockHeadersResponse,
   AdditionsAndRemovalsResponse,
 } from "./types/FullNode/RpcResponse";
 import { ChiaOptions, RpcClient } from "./RpcClient";
 import { Block } from "./types/FullNode/Block";
-import { CertPath } from "./types/CertPath";
-import { getChiaConfig, getChiaFilePath } from "./ChiaNodeUtils";
-// @ts-ignore
-import { address_to_puzzle_hash, puzzle_hash_to_address, get_coin_info } from "chia-utils";
-
-const chiaConfig = getChiaConfig();
-const defaultProtocol = "https";
-const defaultHostname = chiaConfig?.self_hostname || "localhost";
-const defaultPort = chiaConfig?.full_node.rpc_port || 8555;
-const defaultCaCertPath = chiaConfig?.private_ssl_ca.crt;
-const defaultCertPath = chiaConfig?.daemon_ssl.private_crt;
-const defaultCertKey = chiaConfig?.daemon_ssl.private_key;
 
 class FullNode extends RpcClient {
-  public constructor(options?: Partial<ChiaOptions> & CertPath) {
-    super({
-      protocol: options?.protocol || defaultProtocol,
-      hostname: options?.hostname || defaultHostname,
-      port: options?.port || defaultPort,
-      caCertPath: options?.caCertPath || getChiaFilePath(defaultCaCertPath),
-      certPath: options?.certPath || getChiaFilePath(defaultCertPath),
-      keyPath: options?.keyPath || getChiaFilePath(defaultCertKey),
-    });
+  public constructor(options: ChiaOptions) {
+    super(options);
   }
 
   public async getBlockchainState(): Promise<BlockchainStateResponse> {
@@ -82,6 +64,16 @@ class FullNode extends RpcClient {
     });
   }
 
+  public async getPuzzleAndSolution(
+    coinId: string,
+    height: number
+  ): Promise<PuzzleAndSolutionResponse> {
+    return this.request<PuzzleAndSolutionResponse>("get_puzzle_and_solution", {
+      coin_id: coinId,
+      height: height
+    });
+  }
+
   public async getUnfinishedBlockHeaders(
     height: number
   ): Promise<UnfinishedBlockHeadersResponse> {
@@ -122,18 +114,9 @@ class FullNode extends RpcClient {
       }
     );
   }
-  
-  /* https://github.com/CMEONE/chia-utils */
-  public addressToPuzzleHash(address: string): string {
-    return address_to_puzzle_hash(address);
-  }
-  
-  public puzzleHashToAddress(puzzleHash: string): string {
-    return puzzle_hash_to_address(puzzleHash);
-  }
-  
-  public getCoinInfo(parentCoinInfo: string, puzzleHash: string, amount: number): string {
-    return get_coin_info(parentCoinInfo, puzzleHash, amount / 1000000000000);
+
+  public async getNetworkInfo(): Promise<{}> {
+    return this.request<{}>("get_network_info", {});
   }
 }
 

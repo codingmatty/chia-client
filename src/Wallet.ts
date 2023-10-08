@@ -1,6 +1,4 @@
-import { getChiaConfig, getChiaFilePath } from "./ChiaNodeUtils";
 import { ChiaOptions, RpcClient } from "./RpcClient";
-import { CertPath } from "./types/CertPath";
 import {
   AddKeyResponse,
   GenerateMnemonicResponse,
@@ -18,28 +16,16 @@ import {
 import { Transaction } from "./types/Wallet/Transaction";
 import { WalletBalance } from "./types/Wallet/WalletBalance";
 import { WalletInfo } from "./types/Wallet/WalletInfo";
-// @ts-ignore
-import { address_to_puzzle_hash, puzzle_hash_to_address, get_coin_info } from "chia-utils";
 
-const chiaConfig = getChiaConfig();
-const defaultProtocol = "https";
-const defaultHostname = chiaConfig?.self_hostname || "localhost";
-const defaultPort = chiaConfig?.wallet.rpc_port || 9256;
 const host = "https://backup.chia.net";
 
-const defaultCaCertPath = chiaConfig?.private_ssl_ca.crt;
-const defaultCertPath = chiaConfig?.daemon_ssl.private_crt;
-const defaultCertKey = chiaConfig?.daemon_ssl.private_key;
-
 class Wallet extends RpcClient {
-  public constructor(options?: Partial<ChiaOptions> & CertPath) {
+  public constructor(options: ChiaOptions) {
     super({
-      protocol: options?.protocol || defaultProtocol,
-      hostname: options?.hostname || defaultHostname,
-      port: options?.port || defaultPort,
-      caCertPath: options?.caCertPath || getChiaFilePath(defaultCaCertPath),
-      certPath: options?.certPath || getChiaFilePath(defaultCertPath),
-      keyPath: options?.keyPath || getChiaFilePath(defaultCertKey),
+      hostname: options.hostname,
+      port: options.port,
+      certPath: options.certPath,
+      keyPath: options.keyPath
     });
   }
 
@@ -177,6 +163,15 @@ class Wallet extends RpcClient {
     return transactions;
   }
 
+  public async getAddress(walletId: string): Promise<string> {
+    const { address } = await this.request<NextAddressResponse>(
+      "get_next_address",
+      { wallet_id: walletId, new_address: false }
+    );
+
+    return address;
+  }
+
   public async getNextAddress(walletId: string): Promise<string> {
     const { address } = await this.request<NextAddressResponse>(
       "get_next_address",
@@ -204,22 +199,45 @@ class Wallet extends RpcClient {
 
     return transaction;
   }
+  
+  public async sendTransactionAndGetId(
+    walletId: string,
+    amount: number,
+    address: string,
+    fee: number
+  ): Promise<{}> {
+    const { transaction, transaction_id } = await this.request<TransactionResponse>(
+      "send_transaction",
+      {
+        wallet_id: walletId,
+        amount,
+        address,
+        fee,
+      }
+    );
+    return { transaction, transactionId: transaction_id };
+  }
+  
+  public async sendTransactionRaw(
+    walletId: string,
+    amount: number,
+    address: string,
+    fee: number
+  ): Promise<{}> {
+    const transaction = await this.request<TransactionResponse>(
+      "send_transaction",
+      {
+        wallet_id: walletId,
+        amount,
+        address,
+        fee,
+      }
+    );
+    return transaction;
+  }
 
   public async createBackup(filePath: string): Promise<{}> {
     return this.request<{}>("create_backup", { file_path: filePath });
-  }
-  
-  /* https://github.com/CMEONE/chia-utils */
-  public addressToPuzzleHash(address: string): string {
-    return address_to_puzzle_hash(address);
-  }
-  
-  public puzzleHashToAddress(puzzleHash: string): string {
-    return puzzle_hash_to_address(puzzleHash);
-  }
-  
-  public getCoinInfo(parentCoinInfo: string, puzzleHash: string, amount: number): string {
-    return get_coin_info(parentCoinInfo, puzzleHash, amount / 1000000000000);
   }
 }
 
