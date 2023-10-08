@@ -2,7 +2,6 @@ import * as nock from "nock";
 import { FullNode } from "../index";
 
 jest.mock("fs");
-jest.mock("yaml");
 
 describe("Full Node", () => {
   describe("RPC calls", () => {
@@ -103,13 +102,13 @@ describe("Full Node", () => {
         .defaultReplyHeaders({ "access-control-allow-origin": "*" })
         .post("/get_puzzle_and_solution", {
           coin_id: "fakeCoinId",
-          height: 1000000
+          height: 1000000,
         })
         .reply(200, "success");
 
-      expect(await fullNode.getPuzzleAndSolution("fakeCoinId", 1000000)).toEqual(
-        "success"
-      );
+      expect(
+        await fullNode.getPuzzleAndSolution("fakeCoinId", 1000000)
+      ).toEqual("success");
     });
   });
 });

@@ -2,7 +2,6 @@ import * as nock from "nock";
 import { Farmer } from "../index";
 
 jest.mock("fs");
-jest.mock("yaml");
 
 describe("Farmer", () => {
   describe("RPC calls", () => {
@@ -115,28 +114,28 @@ describe("Farmer", () => {
       nock("https://localhost:8559")
         .defaultReplyHeaders({ "access-control-allow-origin": "*" })
         .post("/set_payout_instructions", {
-          launcher_id: 'fakeLauncher',
-          payout_instructions: 'fakePayoutInstructions'
+          launcher_id: "fakeLauncher",
+          payout_instructions: "fakePayoutInstructions",
         })
         .reply(200, "success");
 
-      expect(await farmer.setPayoutInstructions(
-        'fakeLauncher',
-        'fakePayoutInstructions'
-      )).toEqual("success");
+      expect(
+        await farmer.setPayoutInstructions(
+          "fakeLauncher",
+          "fakePayoutInstructions"
+        )
+      ).toEqual("success");
     });
 
     it("calls get_pool_login_link", async () => {
       nock("https://localhost:8559")
         .defaultReplyHeaders({ "access-control-allow-origin": "*" })
         .post("/get_pool_login_link", {
-          launcher_id: 'fakeLauncher',
+          launcher_id: "fakeLauncher",
         })
         .reply(200, "success");
 
-      expect(await farmer.getPoolLoginLink(
-        'fakeLauncher'
-      )).toEqual("success");
+      expect(await farmer.getPoolLoginLink("fakeLauncher")).toEqual("success");
     });
   });
 });

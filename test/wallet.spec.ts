@@ -2,7 +2,6 @@ import * as nock from "nock";
 import { Wallet } from "../index";
 
 jest.mock("fs");
-jest.mock("yaml");
 
 describe("Wallet", () => {
   describe("RPC calls", () => {
@@ -177,13 +176,18 @@ describe("Wallet", () => {
         .post("/get_transactions", { wallet_id: "fakeWalletId", end: 1000 })
         .reply(200, { transactions: "success" });
 
-      expect(await wallet.getTransactions("fakeWalletId", 1000)).toEqual("success");
+      expect(await wallet.getTransactions("fakeWalletId", 1000)).toEqual(
+        "success"
+      );
     });
 
     it("calls get_next_address", async () => {
       nock("https://localhost:9256")
         .defaultReplyHeaders({ "access-control-allow-origin": "*" })
-        .post("/get_next_address", { wallet_id: "fakeWalletId", new_address: true })
+        .post("/get_next_address", {
+          wallet_id: "fakeWalletId",
+          new_address: true,
+        })
         .reply(200, { address: "success" });
 
       expect(await wallet.getNextAddress("fakeWalletId")).toEqual("success");

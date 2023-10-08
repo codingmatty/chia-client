@@ -2,7 +2,6 @@ import * as nock from "nock";
 import { Harvester } from "../index";
 
 jest.mock("fs");
-jest.mock("yaml");
 
 describe("Harvester", () => {
   describe("RPC calls", () => {
@@ -47,7 +46,9 @@ describe("Harvester", () => {
         .post("/add_plot_directory", { dirname: "fakeDirPath" })
         .reply(200, "success");
 
-      expect(await harvester.addPlotDirectory("fakeDirPath")).toEqual("success");
+      expect(await harvester.addPlotDirectory("fakeDirPath")).toEqual(
+        "success"
+      );
     });
 
     it("calls get_plot_directories", async () => {
@@ -65,7 +66,9 @@ describe("Harvester", () => {
         .post("/remove_plot_directory", { dirname: "fakePlotPath" })
         .reply(200, "success");
 
-      expect(await harvester.removePlotDirectory("fakePlotPath")).toEqual("success");
+      expect(await harvester.removePlotDirectory("fakePlotPath")).toEqual(
+        "success"
+      );
     });
   });
 });
